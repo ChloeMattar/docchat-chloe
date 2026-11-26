@@ -2,12 +2,15 @@
 import { useState, useEffect } from 'react';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
+import Uploader from './components/Uploader';
+import Chat from './components/Chat';
 
 function App() {
-  const [user, setUser] = useState(null); // null = logged out
+  const [user, setUser] = useState(null);
+  const [documentId, setDocumentId] = useState(null); // the active uploaded document
 
   useEffect(() => {
-    // On load, ask the server who we are
+    // On load, ask "who am I?"
     fetch('/api/me', { credentials: 'include' })
       .then((r) => r.json())
       .then((data) => setUser(data.user));
@@ -19,20 +22,25 @@ function App() {
       credentials: 'include',
     });
 
-    setUser(null); // back to logged-out view
+    setUser(null);
   }
 
   if (user) {
-    // LOGGED IN
+    // LOGGED IN: upload + chat
     return (
       <main>
-        <p>Hi, {user.name}!</p>
-        <button onClick={logout}>Log out</button>
+        <p>
+          Hi, {user.name}!
+          <button onClick={logout}>Log out</button>
+        </p>
+
+        <Uploader onUploaded={setDocumentId} />
+        <Chat documentId={documentId} />
       </main>
     );
   }
 
-  // LOGGED OUT
+  // LOGGED OUT: the forms
   return (
     <main>
       <h2>Create an account</h2>
